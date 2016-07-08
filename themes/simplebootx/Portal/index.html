@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+	<html>
+	<head>
+		<title>{$site_seo_title} {$site_name}</title>
+		<meta name="keywords" content="{$site_seo_keywords}" />
+		<meta name="description" content="{$site_seo_description}">
+		<tc_include file="Public:head" />
+		<link href="__TMPL__Public/css/slippry/slippry.css" rel="stylesheet">
+		
+		<style>
+			.caption-wraper{position: absolute;left:50%;bottom:2em;}
+			.caption-wraper .caption{
+			position: relative;left:-50%;
+			background-color: rgba(0, 0, 0, 0.54);
+			padding: 0.4em 1em;
+			color:#fff;
+			-webkit-border-radius: 1.2em;
+			-moz-border-radius: 1.2em;
+			-ms-border-radius: 1.2em;
+			-o-border-radius: 1.2em;
+			border-radius: 1.2em;
+			}
+			@media (max-width: 767px){
+				.sy-box{margin: 12px -20px 0 -20px;}
+				.caption-wraper{left:0;bottom: 0.4em;}
+				.caption-wraper .caption{
+				left: 0;
+				padding: 0.2em 0.4em;
+				font-size: 0.92em;
+				-webkit-border-radius: 0;
+				-moz-border-radius: 0;
+				-ms-border-radius: 0;
+				-o-border-radius: 0;
+				border-radius: 0;}
+			}
+		</style>
+	</head>
+<body class="body-white">
+<tc_include file="Public:nav" />
+
+<php>
+$home_slides=sp_getslide("portal_index");
+
+$home_slides=empty($home_slides)?$default_home_slides:$home_slides;
+</php>
+<ul id="homeslider" class="unstyled">
+	<foreach name="home_slides" item="vo">
+	<li>
+		<div class="caption-wraper">
+			<div class="caption">智慧园区风光</div>
+		</div>
+		<a href="{$vo.slide_url}"><img src="{:sp_get_asset_upload_path($vo['slide_pic'])}" alt=""></a>
+	</li>
+	</foreach>
+</ul>
+<div class="container">
+	
+	<div>
+		<h1 class="text-center">园区服务</h1>
+		<h3 class="text-center">Our services</h3>
+	</div>
+	<center>
+	<div class="row">
+		<div class="span4">
+			 <div class="srvs-thumbnail thumbnail">
+					<a href="/index.php?m=list&a=index&id=1"><img src="__TMPL__Public/images/物业报修.jpg" alt="img"></a>
+					<div class="srvs-caption caption">
+					<h4><a href="/index.php?m=list&a=index&id=1">物业报修</a></h4>
+					<p><b>可在线办理报修业务</b></p>		 								
+					</div>
+			</div>
+		</div>
+		<div class="span4">
+			 <div class="srvs-thumbnail thumbnail">
+					<a href="/index.php?g=zhyq&m=rzsq&a=index"><img src="__TMPL__Public/images/入住申请.png" alt="img"></a>
+					<div class="srvs-caption caption">
+					<h4><a href="#">入驻申请</a></h4>
+					<p><b>入住园区需要办理的手续</b></p>		 								
+					</div>
+			</div>
+		</div>
+		<div class="span4">
+			  <div class="srvs-thumbnail thumbnail">
+					<a href="/index.php?m=page&a=index&id=1"><img src="__TMPL__Public/images/维修申请.png" alt="img"></a>
+					<div class="srvs-caption caption">
+					<h4><a href="#">装修申请</a></h4>
+					<p><b>园区业主对物业进行装饰装修前，需要预先完成装修申请</b></p>		 								
+					</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="span4">
+			 <div class="srvs-thumbnail thumbnail">
+					<a href="/index.php?m=list&a=index&id=1"><img src="__TMPL__Public/images/客户续约.png" alt="img"></a>
+					<div class="srvs-caption caption">
+					<h4><a href="#">客户续约</a></h4>
+					<p><b>园区企业在合同期满可办理续租手续</b></p>		 								
+					</div>
+			</div>
+		</div>
+		<div class="span4">
+			<div class="srvs-thumbnail thumbnail">
+					<a href="/index.php?m=page&a=index&id=1"><img src="__TMPL__Public/images/主体变更.png" alt="img"></a>
+					<div class="srvs-caption caption">
+					<h4><a href="#">合同主体变更</a></h4>
+					<p><b>业主因物业转让，转租或公司名称变更而申请变更所拥有合同</b></p>		 								
+					</div>
+			</div>
+		</div>
+		<div class="span4">
+			  <div class="srvs-thumbnail thumbnail">
+					<a href="/index.php?m=page&a=index&id=1"><img src="__TMPL__Public/images/退租1.png" alt="img"></a>
+					<div class="srvs-caption caption">
+					<h4><a href="#">客户退租</a></h4>
+					<p><b>园区企业提出退租要求</b></p>		 								
+					</div>
+			</div>
+		</div>
+	</div>
+	</center>
+	
+	<php>
+		$lastnews=sp_sql_posts("cid:$portal_index_lastnews;field:post_title,post_excerpt,tid,smeta;order:listorder asc;limit:4;"); 
+	</php>
+	<div class="row">
+		<foreach name="lastnews" item="vo">
+		<php>$smeta=json_decode($vo['smeta'],true);</php>
+		<div class="span3">
+			<div class="tc-gridbox">
+				<div class="header">
+					<div class="item-image">
+						<a href="{:leuu('article/index',array('id'=>$vo['tid'],'cid'=>$vo['term_id']))}">
+							<if condition="empty($smeta['thumb'])"> 
+								<img src="__TMPL__Public/images/default_tupian1.png" class="img-responsive" alt="{$vo.post_title}"/>
+							<else /> 
+								<img src="{:sp_get_asset_upload_path($smeta['thumb'])}" class="img-responsive img-thumbnail" alt="{$vo.post_title}" />
+							</if>
+						</a>
+					</div>
+					<h3><a href="{:leuu('article/index',array('id'=>$vo['tid'],'cid'=>$vo['term_id']))}">{$vo.post_title}</a></h3>
+					<hr>
+				</div>
+				<div class="body">
+					<p><a href="{:leuu('article/index',array('id'=>$vo['tid'],'cid'=>$vo['term_id']))}">{:msubstr($vo['post_excerpt'],0,32)}</a></p>
+				</div>
+			</div>
+		</div>
+		</foreach>
+	</div>
+<tc_include file="Public:footer"/>
+</div>
+
+
+<tc_include file="Public:scripts"/>
+<script src="__TMPL__Public/js/slippry.min.js"></script>
+<script>
+$(function() {
+	var demo1 = $("#homeslider").slippry({
+		transition: 'fade',
+		useCSS: true,
+		captions: false,
+		speed: 1000,
+		pause: 3000,
+		auto: true,
+		preload: 'visible'
+	});
+});
+</script>
+{:hook('footer_end')}
+</body>
+</html>
