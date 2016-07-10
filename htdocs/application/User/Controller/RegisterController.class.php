@@ -6,14 +6,22 @@ namespace User\Controller;
 use Common\Controller\HomebaseController;
 class RegisterController extends HomebaseController {
 	
-	function index(){
+	function index_com(){
 	    if(sp_is_user_login()){ //已经登录时直接跳到首页
 	        redirect(__ROOT__."/");
-	    }else{
-	        $this->display(":register");
-	    }
+	    }else {
+			$this->display(":register_com");
+		}
 	}
-	
+
+	function index_per(){
+		if(sp_is_user_login()){ //已经登录时直接跳到首页
+			redirect(__ROOT__."/");
+		}else {
+			$this->display(":register_per");
+		}
+	}
+
 	function doregister(){
     	
     	if(isset($_POST['email'])){
@@ -41,6 +49,10 @@ class RegisterController extends HomebaseController {
             //array(验证字段,验证规则,错误提示,验证条件,附加规则,验证时间)
             array('mobile', 'require', '手机号不能为空！', 1 ),
             array('password','require','密码不能为空！',1),
+			array('com_name','require','公司名称不能为空！',1),
+			array('repassword', 'require', '重复密码不能为空！', 1 ),
+			array('repassword','password','确认密码不正确',0,'confirm'),
+			//array('mobile','mobile','手机号格式不正确！',1), // 验证mobile字段格式是否正确
         );
         	
 	    $users_model=M("Users");
@@ -49,8 +61,9 @@ class RegisterController extends HomebaseController {
 	        $this->error($users_model->getError());
 	    }
 	     
-	    $password=$_POST['password'];
-	    $mobile=$_POST['mobile'];
+	    $password = $_POST['password'];
+	    $mobile = $_POST['mobile'];
+		$com_name = $_POST['com_name'];
 	     
 	    if(strlen($password) < 5 || strlen($password) > 20){
 	        $this->error("密码长度至少5位，最多20位！");
@@ -69,7 +82,8 @@ class RegisterController extends HomebaseController {
 	            'user_login' => '',
 	            'user_email' => '',
 	            'mobile' =>$_POST['mobile'],
-	            'user_nicename' =>'',
+	            'user_nicename' => '',
+				'com_name' => $com_name,
 	            'user_pass' => sp_password($password),
 	            'last_login_ip' => get_client_ip(0,true),
 	            'create_time' => date("Y-m-d H:i:s"),
@@ -90,9 +104,9 @@ class RegisterController extends HomebaseController {
 	         
 	    }
 	}
-	
+
 	private function _do_email_register(){
-	   
+
         if(!sp_check_verify_code()){
             $this->error("验证码错误！");
         }
@@ -101,19 +115,20 @@ class RegisterController extends HomebaseController {
             //array(验证字段,验证规则,错误提示,验证条件,附加规则,验证时间)
             array('email', 'require', '邮箱不能为空！', 1 ),
             array('password','require','密码不能为空！',1),
-            array('repassword', 'require', '重复密码不能为空！', 1 ),
-            array('repassword','password','确认密码不正确',0,'confirm'),
+			array('com_name','require','公司名称不能为空！',1),
+			array('repassword', 'require', '重复密码不能为空！', 1 ),
+			array('repassword','password','确认密码不正确',0,'confirm'),
             array('email','email','邮箱格式不正确！',1), // 验证email字段格式是否正确
             	
         );
 	    
 	     
-	    $users_model=M("Users");
+	    $users_model=M("com_name");
 	     
 	    if($users_model->validate($rules)->create()===false){
 	        $this->error($users_model->getError());
 	    }
-	     
+		$com_name=$_POST['com_name'];
 	    $password=$_POST['password'];
 	    $email=$_POST['email'];
 	    $username=str_replace(array(".","@"), "_",$email);
@@ -146,7 +161,7 @@ class RegisterController extends HomebaseController {
 	        $uc_checkusername=uc_user_checkname($username);
 	    }
 	     
-	    $users_model=M("Users");
+	    $users_model=M("com_name");
 	    $result = $users_model->where($where)->count();
 	    if($result || $uc_checkemail<0 || $uc_checkusername<0){
 	        $this->error("用户名或者该邮箱已经存在！");
@@ -154,7 +169,7 @@ class RegisterController extends HomebaseController {
 	        $uc_register=true;
 	        if($ucenter_syn){
 	             
-	            $uc_uid=uc_user_register($username,$password,$email);
+	            $uc_uid=uc_user_register($username,$password,$email,$com_name);
 	            //exit($uc_uid);
 	            if($uc_uid<0){
 	                $uc_register=false;
@@ -165,19 +180,21 @@ class RegisterController extends HomebaseController {
 	            $data=array(
 	                'user_login' => $username,
 	                'user_email' => $email,
-	                'user_nicename' =>$username,
+	                'user_nicename' => $username,
 	                'user_pass' => sp_password($password),
+					'com_name' => $com_name,
 	                'last_login_ip' => get_client_ip(0,true),
 	                'create_time' => date("Y-m-d H:i:s"),
 	                'last_login_time' => date("Y-m-d H:i:s"),
 	                'user_status' => $need_email_active?2:1,
-	                "user_type"=>2,//会员
+	                "user_type"=> 2,//会员
 	            );
+
 	            $rst = $users_model->add($data);
 	            if($rst){
 	                //登入成功页面跳转
-	                $data['id']=$rst;
-	                $_SESSION['user']=$data;
+	                $data['id']=$rst;        //跳转至等待页面
+	                $_SESSION['user']=$data; //登录用户
 	                	
 	                //发送激活邮件
 	                if($need_email_active){

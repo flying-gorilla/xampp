@@ -15,7 +15,7 @@ class ProfileController extends MemberbaseController {
 	
     //编辑用户资料
 	public function edit() {
-		$userid=sp_get_current_userid();
+		$userid=sp_get_current_userid();                               //得到当前用户的id
 		$user=$this->users_model->where(array("id"=>$userid))->find();
 		$this->assign($user);
     	$this->display();
@@ -25,7 +25,7 @@ class ProfileController extends MemberbaseController {
     	if(IS_POST){
     		$userid=sp_get_current_userid();
     		$_POST['id']=$userid;
-    		if ($this->users_model->field('id,user_nicename,sex,birthday,user_url,signature')->create()) {
+    		if ($this->users_model->field('id,user_nicename,sex,birthday,user_url,signature,com_name')->create()) {
 				if ($this->users_model->save()!==false) {
 					$user=$this->users_model->find($userid);
 					sp_update_current_user($user);
@@ -37,7 +37,6 @@ class ProfileController extends MemberbaseController {
 				$this->error($this->users_model->getError());
 			}
     	}
-    	
     }
     
     public function password() {
